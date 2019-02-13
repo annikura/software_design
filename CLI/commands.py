@@ -183,3 +183,14 @@ class Exit(Command, metaclass=Metaclass):
     @classmethod
     def __exec__(cls, _):
         return exit()
+
+
+class Grep(Command, metaclass=Metaclass):
+    command = "grep"
+    validator = Command.validator
+    mapper = Command.mapper
+    reducer = Command.reducer
+    collector = "CONCAT_LISTS"
+
+    def __exec__(self, arg):
+        return [arg]
