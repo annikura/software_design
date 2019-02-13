@@ -220,3 +220,14 @@ class Pwd(Command, metaclass=Metaclass):
     @classmethod
     def __exec__(cls, _):
         return os.path.dirname(os.path.realpath(__file__)) + "\n"
+
+
+class Grep(Command, metaclass=Metaclass):
+    command = "grep"
+    validator = Command.validator
+    mapper = Command.mapper
+    reducer = Command.reducer
+    collector = "CONCAT_LISTS"
+
+    def __exec__(self, arg):
+        return [arg]
