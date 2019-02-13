@@ -66,3 +66,38 @@ class TestCommands(unittest.TestCase):
     def test_cat_ignores_piped_when_args_present(self):
         self.assertEqual([" some test \n", "here\n"], commands.Cat().execute(
             self.create_tmp_file("test_file", [" some test ", "here"]), piped=["piped"]))
+
+    def test_simple_grep_from_pipe(self):
+        self.assertEqual(["this is test"], commands.Grep().execute("hi", piped=["this is test"]))
+
+    def test_simple_grep_from_file(self):
+        self.assertEqual(["some hi-test\n"], commands.Grep().execute(
+            "hi", self.create_tmp_file("test_file", ["some hi-test", "here"])))
+
+    def test_grep_regexp(self):
+        self.assertEqual(["this is test", "maysbe yes"],
+                         commands.Grep().execute("s*s",
+                                                 piped=["this is test", "or quite hot", "maysbe yes", "maybe not"]))
+
+    def test_grep_w_flag(self):
+        self.assertEqual(["this is test"],
+                         commands.Grep().execute("-w", "t..t",
+                                                 piped=["this is test", "tester is testing"]))
+
+    def test_grep_i_flag(self):
+        self.assertEqual(["this is Test!", "TESTING"],
+                         commands.Grep().execute("-i", "t..t",
+                                                 piped=["this is Test!", "TESTING"]))
+
+    def test_grep_A_flag(self):
+        self.assertEqual(["this is test", "a", "testing"],
+                         commands.Grep().execute("-A", "1", "t..t",
+                                                 piped=["this is test", "a", "b", "c", "testing"]))
+
+    def test_grep_A_overlap_flag(self):
+        self.assertEqual(["this is test", "testing", "a", "b"],
+                         commands.Grep().execute("-A", "2", "t..t",
+                                                 piped=["this is test", "testing", "a", "b", "c"]))
+
+    def test_grep_validator(self):
+        self.assertRaises(commands.InvalidCommandArgumentsException, lambda: commands.Grep().execute("f", "-A", "2"))
