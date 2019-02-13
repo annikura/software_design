@@ -97,10 +97,10 @@ class Metaclass(type):
         return parser
 
     def __new__(mcs, class_name: str, class_parents, class_attributes: dict):
-        validator = ValidatorEnum[class_attributes["validator"]].get_validator()
-        mapper = MapperEnum[class_attributes["mapper"]].get_mapper()
-        reducer = ReducerEnum[class_attributes["reducer"]].get_reducer()
-        collector = CollectorEnum[class_attributes["collector"]].get_collector()
+        validator = ValidatorEnum[class_attributes.get("validator", "NO")].get_validator()
+        mapper = MapperEnum[class_attributes.get("mapper", "ID")].get_mapper()
+        reducer = ReducerEnum[class_attributes.get("reducer", "ID")].get_reducer()
+        collector = CollectorEnum[class_attributes.get("collector", "ID")].get_collector()
         parser = mcs.__get_parser(class_attributes.get("arguments"))
 
         def execute(cls, *args, piped=None):
