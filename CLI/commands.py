@@ -242,7 +242,6 @@ class Pwd(Command, metaclass=Metaclass):
     def __exec__(cls, _):
         return os.path.dirname(os.path.realpath(__file__)) + "\n"
 
-
 class Grep(Command, metaclass=Metaclass):
     command = "grep"
     validator = "AT_LEAST_TWO_WITH_PIPED"
