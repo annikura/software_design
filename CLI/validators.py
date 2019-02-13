@@ -48,3 +48,18 @@ class RequiresArgs(Validator):
         if not result:
             message = "invalid arguments: command requires args to be present"
         return result, message
+
+
+class AtLeastTwoWithPiped(Validator):
+    @staticmethod
+    def validate(*args, piped):
+        """
+        Checks that at least two args including piped are provided
+
+        :param args: list of command arguments
+        :param piped: text piped to command
+        """
+        if ((piped is not None) + len(args)) >= 2:
+            return True, ""
+        else:
+            return False, "invalid arguments: command requires two args: PATTERN, FILE"

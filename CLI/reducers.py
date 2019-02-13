@@ -1,6 +1,7 @@
 """
     Reducers are classes that contain "reduce" method and reduce results from mapper to command input.
 """
+import mappers
 
 
 class Reducer:
@@ -57,8 +58,21 @@ class CallOnce(Reducer):
         """
         Ignores all provided input and returns [[]] in order to make a command to be called once an an empty input.
 
-        :param piped: piped argument
-        :param args: command arguments
         :return: [[]]
         """
         return [[]]
+
+
+class SecondToFileOrPiped(Reducer):
+    @staticmethod
+    def reduce(piped, args):
+        """
+        Takes two first arguments from args, if they exist and maps the second one to file.
+        In case if len(args) == 1, will take piped as a file content.
+        Expects that at least two parameters in sum with piped will be provided.
+
+        :param piped: piped argument
+        :param args: command arguments
+        :return: list of two elements: first argument and list of string representing data
+        """
+        return [[args[0], piped if len(args) == 1 else mappers.NameToFile.apply(args[1])]]
