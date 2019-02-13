@@ -53,6 +53,12 @@ class RequiresArgs(Validator):
 class AtLeastTwoWithPiped(Validator):
     @staticmethod
     def validate(*args, piped):
+        """
+        Checks that at least two args including piped are provided
+
+        :param args: list of command arguments
+        :param piped: text piped to command
+        """
         if ((piped is not None) + len(args)) >= 2:
             return True, ""
         else:
