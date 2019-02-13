@@ -1,0 +1,1 @@
+[Обоснование выбора библиотеки для разбора аргументов](https://docs.google.com/document/d/1M-f-oVbnfAgNSt-xKxVL8P6Tjy-SCB8xaIzTMUswXl0/edit?usp=sharing)
