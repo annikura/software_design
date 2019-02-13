@@ -1,6 +1,7 @@
 """
     Reducers are classes that contain "reduce" method and reduce results from mapper to command input.
 """
+import mappers
 
 
 class Reducer:
@@ -34,3 +35,9 @@ class CallOnce(Reducer):
     @staticmethod
     def reduce(_, __):
         return [[]]
+
+
+class SecondToFileOrPiped(Reducer):
+    @staticmethod
+    def reduce(piped, args):
+        return [[args[0], piped if len(args) == 1 else mappers.NameToFile.apply(args[1])]]

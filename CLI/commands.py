@@ -1,3 +1,4 @@
+import re
 import subprocess
 from enum import Enum
 
@@ -5,6 +6,7 @@ import collectors
 import mappers
 import reducers
 import validators
+import argparse
 
 
 class CommandExecutor:
@@ -51,22 +53,36 @@ class CommandExecutor:
 
 
 class Metaclass(type):
+    @staticmethod
+    def __get_parser(args):
+        parser = argparse.ArgumentParser(description='.')
+        if not args:
+            return parser
+        for arg in args:
+            options = arg.get("options", {})
+            parser.add_argument(*arg["names"], **options)
+        return parser
+
     def __new__(mcs, class_name: str, class_parents, class_attributes: dict):
         validator = ValidatorEnum[class_attributes["validator"]].get_validator()
         mapper = MapperEnum[class_attributes["mapper"]].get_mapper()
         reducer = ReducerEnum[class_attributes["reducer"]].get_reducer()
         collector = CollectorEnum[class_attributes["collector"]].get_collector()
+        parser = mcs.__get_parser(class_attributes.get("arguments"))
 
         def execute(cls, *args, piped=None):
-            validation_result, validator_message = validator.validate(args, piped=piped)
+            options, parameters = parser.parse_known_args(args)
+            for key, value in vars(options).items():
+                setattr(cls, key, value)
+
+            validation_result, validator_message = validator.validate(*parameters, piped=piped)
             if not validation_result:
                 raise InvalidCommandArgumentsException("{}: {}".format(class_name, validator_message))
-            mapped_input = list(map(mapper.apply, list(args)))
+            mapped_input = list(map(mapper.apply, list(parameters)))
             reduced_input = reducer.reduce(piped, mapped_input)
             return collector.collect(list([cls.__exec__(inp) for inp in reduced_input]))
 
         class_attributes["execute"] = execute
-
         clazz = type(class_name, class_parents, class_attributes)
         CommandExecutor.commands[class_attributes["command"]] = clazz
         return clazz
@@ -80,6 +96,7 @@ class ValidatorEnum(Enum):
     NO = validators.AlwaysTrue
     REQUIRE_ANY_INPUT = validators.RequiresAny
     REQUIRE_ARGS_INPUT = validators.RequiresArgs
+    AT_LEAST_TWO_WITH_PIPED = validators.AtLeastTwoWithPiped
 
     def __init__(self, validator):
         self.validator = validator
@@ -104,6 +121,7 @@ class ReducerEnum(Enum):
     IGNORE_PIPED = reducers.IgnoresPiped
     IGNORE_PIPED_IF_ARGS = reducers.IgnoresPipedIfArgs
     CALL_ONCE = reducers.CallOnce
+    SECOND_ARG_TO_FILE_OR_PIPED = reducers.SecondToFileOrPiped
 
     def __init__(self, reducer):
         self.reducer = reducer
@@ -128,6 +146,8 @@ class Command:
     mapper = "ID"
     reducer = "ID"
     collector = "ID"
+
+    arguments = {}
 
     def execute(self, *args, piped=None):
         pass
@@ -187,10 +207,49 @@ class Exit(Command, metaclass=Metaclass):
 
 class Grep(Command, metaclass=Metaclass):
     command = "grep"
-    validator = Command.validator
+    validator = "AT_LEAST_TWO_WITH_PIPED"
     mapper = Command.mapper
-    reducer = Command.reducer
+    reducer = "SECOND_ARG_TO_FILE_OR_PIPED"
     collector = "CONCAT_LISTS"
 
+    arguments = [
+        {
+            "names": ["-A"],
+            "options": {
+                "type": int,
+                "default": 0,
+            }
+        },
+        {
+            "names": ["-w"],
+            "options": {
+                "action": 'store_true',
+            }
+        },
+        {
+            "names": ["-i"],
+            "options": {
+                "action": 'store_true',
+            }
+        }
+    ]
+
     def __exec__(self, arg):
-        return [arg]
+        exp = arg[0]
+        flags = 0
+        if self.w:
+            exp = r"\b" + exp + r"\b"
+        if self.i:
+            flags = re.IGNORECASE
+
+        result = []
+        regexp = re.compile(exp, flags)
+        counter = 0
+        for line in arg[1]:
+            print(exp, line)
+            counter = max(0, counter - 1)
+            if regexp.search(line):
+                counter = self.A + 1
+            if counter > 0:
+                result.append(line)
+        return result
