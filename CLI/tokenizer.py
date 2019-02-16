@@ -35,7 +35,7 @@ class ParserContext:
                 bs = subprocess.check_output(
                     "echo ${}".format(variable),
                     shell=True)
-                return bs.decode("utf-8")
+                return bs.decode("utf-8").strip()
             except subprocess.CalledProcessError:
                 raise InvalidContextReferenceException("Unknown variable: {}".format(variable))
         return value
@@ -150,6 +150,7 @@ class CommandLineParser:
                 raise InvalidCommandException(
                     "Too many values for variable assignment: {}".format(", ".join(rest_tokens)))
         old_value = None if not context.contains_variable(variable) else context.get_variable(variable)
+        context.set_variable(variable, value)
         return variable, value, old_value
 
     @staticmethod
