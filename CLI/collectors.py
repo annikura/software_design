@@ -1,5 +1,5 @@
 """
-    Collectors are classes that contain "collect" method and reduce results from commands to final result.
+    Collectors are classes that contain "collect" method and reduce list of results from command to final result.
 """
 
 
@@ -24,7 +24,7 @@ class ConcatLists(Collector):
     @staticmethod
     def collect(results):
         """
-        Concatenates the lists of strings (supposedly) into a one big list.
+        Concatenates a list of lists of strings into a one big list.
         :param results: [[string]]
         :return: concatenated list
         """

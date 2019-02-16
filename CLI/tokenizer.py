@@ -1,4 +1,5 @@
 import re
+import subprocess
 from enum import Enum, auto
 
 
@@ -6,6 +7,48 @@ class Mode(Enum):
     NORMAL = auto()
     WEAK_QUOTES = auto(),
     FULL_QUOTES = auto()
+
+
+class InvalidContextReferenceException(Exception):
+    pass
+
+
+"""
+    A context class containing environmental and custom variables.
+"""
+
+
+class ParserContext:
+    def __init__(self):
+        self.values = {}
+
+    def get_variable(self, variable):
+        """
+        Attempts to get the variable from the custom set. In case of failure, gets the variable from the system ENV.
+
+        :param variable: name of the variable to be retrieved
+        :return: value stored by variable
+        """
+        value = self.values.get(variable)
+        if value is None:
+            try:
+                bs = subprocess.check_output(
+                    "echo ${}".format(variable),
+                    shell=True)
+                return bs.decode("utf-8")
+            except subprocess.CalledProcessError:
+                raise InvalidContextReferenceException("Unknown variable: {}".format(variable))
+        return value
+
+    def set_variable(self, variable, value):
+        self.values[variable] = value
+
+    def contains_variable(self, variable):
+        return variable in self.values
+
+
+class InvalidCommandException(Exception):
+    pass
 
 
 """
@@ -70,14 +113,33 @@ class CommandLineParser:
         return commands
 
     @staticmethod
-    def parse_string(s: str, context):
+    def parse_string(s: str, context: ParserContext):
+        """
+        Given a string containing a sequence of commands and env variables makes env variables substitutions,
+        removes wrapping quotes and parses a line into sequential lists each containing a command and its arguments.
+
+        :param s: command string
+        :param context: environment context
+        :return: list of commands to be executed.
+
+        NOTICE: an assignment operation will always execute itself and return an empty list.
+        """
         if re.match("^\\s*\\w[\\w0-9_]*\\s*=.*$", s):
-            return CommandLineParser.parse_assignment(s, context)
+            CommandLineParser.parse_assignment(s, context)
+            return []
         else:
             return CommandLineParser.__group_tokens_into_commands(CommandLineParser.parse_command_line(s, context))
 
     @staticmethod
     def parse_assignment(s: str, context):
+        """
+        Given a string containing an assignment operation, performs assignment operation on a given context.
+
+        :param s: string with assignment.
+        :param context: environment context
+        :return: a tuple of a variable name, its new value set by the command and
+        its old value or None if it didn't exist before
+        """
         eq_index = s.find('=')
         variable = s[:eq_index].strip()
         value = ""
@@ -87,11 +149,19 @@ class CommandLineParser:
             if len(rest_tokens) > 1:
                 raise InvalidCommandException(
                     "Too many values for variable assignment: {}".format(", ".join(rest_tokens)))
-        context.set_value(variable, value)
-        return []
+        old_value = None if not context.contains_variable(variable) else context.get_variable(variable)
+        return variable, value, old_value
 
     @staticmethod
-    def parse_command_line(s: str, context):
+    def parse_command_line(s: str, context: ParserContext):
+        """
+        Given a line containing sequential commands, parses it into a list of lists each
+        containing a command and its arguments.
+
+        :param s: line to be parsed
+        :param context: env context
+        :return: list of commands
+        """
         mode = Mode.NORMAL
         tokens = []
         last_token = ""
@@ -130,7 +200,7 @@ class CommandLineParser:
                 continue
             if sym is "$":
                 length, name = CommandLineParser.__get_variable_name_as_prefix(s[i + 1:])
-                last_token += context.get_value(name)
+                last_token += context.get_variable(name)
                 next_int = i + length + 1
 
         if mode is not Mode.NORMAL:
@@ -138,21 +208,3 @@ class CommandLineParser:
 
         CommandLineParser.__refresh_token(last_token, tokens)
         return tokens
-
-
-class Context:
-    def __init__(self):
-        self.values = {}
-
-    def get_value(self, variable):
-        value = self.values.get(variable)
-        if value is None:
-            raise InvalidCommandException("Unknown variable: {}".format(variable))
-        return value
-
-    def set_value(self, variable, value):
-        self.values[variable] = value
-
-
-class InvalidCommandException(Exception):
-    pass

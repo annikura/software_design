@@ -1,3 +1,4 @@
+import os
 import subprocess
 from enum import Enum
 
@@ -8,24 +9,56 @@ import validators
 
 
 class CommandExecutor:
-    commands = {}
-
     @staticmethod
-    def execute(command_str, args, piped=None):
+    def execute(command_str, args, piped):
         """
             Given a command, a list of its arguments and the piped data will
             run an appropriate command with the given parameters.
 
             :returns list of strings representing result of the command execution
         """
-        command = CommandExecutor.commands.get(command_str)
-        if command is None:
+        pass
+
+
+class CommandExecutorFromLine(CommandExecutor):
+    @staticmethod
+    def execute(command_str, args, piped):
+        try:
             bs = subprocess.check_output(
                 "echo -e {} | {} {}".format("\n".join(piped), command_str, " ".join(args)),
                 shell=True)
             return [bs.decode("utf-8")]
+        except subprocess.CalledProcessError or subprocess.SubprocessError as e:
+            raise CommandExecutionException(e.__cause__)
+
+
+class MetaclassGeneratedCommandExecutor(CommandExecutor):
+    commands = {}
+
+    @staticmethod
+    def execute(command_str, args, piped):
+        command = MetaclassGeneratedCommandExecutor.commands.get(command_str)
+        if command is None:
+            raise CommandNotFoundException("Command {} was not found".format(command))
         else:
             return command().execute(*args, piped=piped)
+
+
+class CommandExecutorMixedImpl(CommandExecutor):
+    @staticmethod
+    def execute(command_str, args, piped=None):
+        try:
+            MetaclassGeneratedCommandExecutor.execute(command_str, args, piped)
+        except CommandNotFoundException:
+            CommandExecutorFromLine.execute(command_str, args, piped)
+
+
+class CommandExecutionException(Exception):
+    pass
+
+
+class CommandNotFoundException(Exception):
+    pass
 
 
 """
@@ -68,7 +101,7 @@ class Metaclass(type):
         class_attributes["execute"] = execute
 
         clazz = type(class_name, class_parents, class_attributes)
-        CommandExecutor.commands[class_attributes["command"]] = clazz
+        MetaclassGeneratedCommandExecutor.commands[class_attributes["command"]] = clazz
         return clazz
 
 
@@ -183,3 +216,15 @@ class Exit(Command, metaclass=Metaclass):
     @classmethod
     def __exec__(cls, _):
         return exit()
+
+
+class Pwd(Command, metaclass=Metaclass):
+    command = "pwd"
+    validator = Command.validator
+    mapper = Command.mapper
+    reducer = Command.reducer
+    collector = Command.collector
+
+    @classmethod
+    def __exec__(cls, _):
+        return os.path.dirname(os.path.realpath(__file__))

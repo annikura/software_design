@@ -1,11 +1,14 @@
 """
-        Validators are classes that contain "validate" method and check command arguments on validity.
+    Validators are classes that contain "validate" method and check list of command arguments on validity.
 """
 
 
 class Validator:
     @staticmethod
     def validate(*args, piped):
+        """
+        :return: true if input is valid, false if not.
+        """
         pass
 
 
@@ -18,6 +21,12 @@ class AlwaysTrue(Validator):
 class RequiresAny(Validator):
     @staticmethod
     def validate(*args, piped):
+        """
+        Checks that either args or piped input was provided
+
+        :param args: list of command arguments
+        :param piped: text piped to command
+        """
         result = args or piped
         message = ""
         if not result:
@@ -28,6 +37,12 @@ class RequiresAny(Validator):
 class RequiresArgs(Validator):
     @staticmethod
     def validate(*args, piped):
+        """
+        Checks that args were provided
+
+        :param args: list of command arguments
+        :param piped: text piped to command
+        """
         result = len(args) > 0
         message = ""
         if not result:
