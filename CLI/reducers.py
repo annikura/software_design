@@ -12,18 +12,39 @@ class Reducer:
 class Id(Reducer):
     @staticmethod
     def reduce(piped, args):
+        """
+        Concatenates piped argument with args into the list.
+
+        :param piped: piped argument
+        :param args: command arguments
+        :return: list with all provided arguments
+        """
         return [piped] + args
 
 
 class IgnoresPiped(Reducer):
     @staticmethod
     def reduce(piped, args):
+        """
+        Ignores piped argument and returns args.
+
+        :param piped: piped argument
+        :param args: command arguments
+        :return: args unchanged
+        """
         return [args]
 
 
 class IgnoresPipedIfArgs(Reducer):
     @staticmethod
     def reduce(piped, args):
+        """
+        Ignores piped argument if args were provided.
+
+        :param piped: piped argument
+        :param args: command arguments
+        :return: result arguments
+        """
         if args:
             return args
         else:
@@ -33,4 +54,11 @@ class IgnoresPipedIfArgs(Reducer):
 class CallOnce(Reducer):
     @staticmethod
     def reduce(_, __):
+        """
+        Ignores all provided input and returns [[]] in order to make a command to be called once an an empty input.
+
+        :param piped: piped argument
+        :param args: command arguments
+        :return: [[]]
+        """
         return [[]]
