@@ -32,7 +32,7 @@ class IgnoresPiped(Reducer):
         :param args: command arguments
         :return: args unchanged
         """
-        return [args]
+        return args
 
 
 class IgnoresPipedIfArgs(Reducer):

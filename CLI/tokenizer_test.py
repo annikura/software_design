@@ -3,7 +3,7 @@ import unittest
 from tokenizer import ParserContext, CommandLineParser, InvalidCommandException
 
 
-class TestCommands(unittest.TestCase):
+class TestParsers(unittest.TestCase):
     def test_parse_assignment(self):
         context = ParserContext()
         CommandLineParser.parse_assignment("foo=bar", context)
@@ -43,11 +43,6 @@ class TestCommands(unittest.TestCase):
         self.assertRaises(InvalidCommandException,
                           lambda: CommandLineParser.parse_string("echo  dogg| cat |", context))
 
-    def test_parse_trash_string(self):
-        context = ParserContext()
-        self.assertRaises(InvalidCommandException,
-                          lambda: CommandLineParser.parse_string("sdjglkd635643@$UI#sgdlu9rers (*$*#3 4", context))
-
     def test_parse_command_line_with_variable(self):
         context = ParserContext()
         CommandLineParser.parse_string("a=boo", context)
@@ -56,5 +51,5 @@ class TestCommands(unittest.TestCase):
 
     def test_parse_command_line_with_unknown_variable(self):
         context = ParserContext()
-        self.assertRaises(InvalidCommandException,
-                          lambda: CommandLineParser.parse_command_line("echo $a 'ga v$a' \"d o$a|gg\"", context))
+        tokens = CommandLineParser.parse_command_line("echo $a 'ga v$a' \"d o$a|gg\"", context)
+        self.assertEqual(["echo", "ga v$a", "d o|gg"], tokens)

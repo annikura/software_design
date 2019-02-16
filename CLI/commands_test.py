@@ -48,21 +48,21 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(["word another with   spaces"], commands.Echo().execute(["word", "another", "with   spaces"]))
 
     def test_cat_from_piped(self):
-        self.assertEqual([["something"]], commands.Cat().execute(piped=["something"]))
+        self.assertEqual(["something"], commands.Cat().execute(piped=["something"]))
 
     def test_cat_from_piped_with_multiple_lines(self):
-        self.assertEqual([["something", "another somthing"]], commands.Cat()
+        self.assertEqual(["something", "another somthing"], commands.Cat()
                          .execute(piped=["something", "another somthing"]))
 
     def test_cat_from_one_file(self):
-        self.assertEqual([["some test", "here"]], commands.Cat().execute(
+        self.assertEqual(["some test", "here"], commands.Cat().execute(
             self.create_tmp_file("test_file", ["some test", "here"])))
 
     def test_cat_from_two_files(self):
-        self.assertEqual([["some text", "here"], ["another text", "there"]], commands.Cat().execute(
+        self.assertEqual(["some text", "here", "another text", "there"], commands.Cat().execute(
             self.create_tmp_file("test_file1", ["some text", "here"]),
             self.create_tmp_file("test_file2", ["another text", "there"])))
 
     def test_cat_ignores_piped_when_args_present(self):
-        self.assertEqual([["some test", "here"]], commands.Cat().execute(
+        self.assertEqual(["some test", "here"], commands.Cat().execute(
             self.create_tmp_file("test_file", ["some test", "here"]), piped=["piped"]))
