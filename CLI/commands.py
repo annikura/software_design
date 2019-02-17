@@ -85,10 +85,10 @@ class CommandNotFoundException(Exception):
 
 class Metaclass(type):
     def __new__(mcs, class_name: str, class_parents, class_attributes: dict):
-        validator = ValidatorEnum[class_attributes["validator"]].get_validator()
-        mapper = MapperEnum[class_attributes["mapper"]].get_mapper()
-        reducer = ReducerEnum[class_attributes["reducer"]].get_reducer()
-        collector = CollectorEnum[class_attributes["collector"]].get_collector()
+        validator = ValidatorEnum[class_attributes.get("validator", "NO")].get_validator()
+        mapper = MapperEnum[class_attributes.get("mapper", "ID")].get_mapper()
+        reducer = ReducerEnum[class_attributes.get("reducer", "ID")].get_reducer()
+        collector = CollectorEnum[class_attributes.get("collector", "ID")].get_collector()
 
         def execute(cls, *args, piped=None):
             validation_result, validator_message = validator.validate(args, piped=piped)
@@ -171,7 +171,6 @@ class Wc(Command, metaclass=Metaclass):
     validator = "REQUIRE_ANY_INPUT"
     mapper = "NAME_TO_FILE"
     reducer = "IGNORE_PIPED_IF_ARGS"
-    collector = Command.collector
 
     @classmethod
     def __exec__(cls, arg):
@@ -184,10 +183,7 @@ class Wc(Command, metaclass=Metaclass):
 
 class Echo(Command, metaclass=Metaclass):
     command = "echo"
-    validator = Command.validator
-    mapper = Command.mapper
     reducer = "IGNORE_PIPED"
-    collector = Command.collector
 
     @classmethod
     def __exec__(cls, arg):
@@ -196,7 +192,6 @@ class Echo(Command, metaclass=Metaclass):
 
 class Cat(Command, metaclass=Metaclass):
     command = "cat"
-    validator = Command.validator
     mapper = "NAME_TO_FILE"
     reducer = "IGNORE_PIPED_IF_ARGS"
     collector = "CONCAT_LISTS"
@@ -208,10 +203,7 @@ class Cat(Command, metaclass=Metaclass):
 
 class Exit(Command, metaclass=Metaclass):
     command = "exit"
-    validator = Command.validator
-    mapper = Command.mapper
     reducer = "CALL_ONCE"
-    collector = Command.collector
 
     @classmethod
     def __exec__(cls, _):
@@ -220,10 +212,6 @@ class Exit(Command, metaclass=Metaclass):
 
 class Pwd(Command, metaclass=Metaclass):
     command = "pwd"
-    validator = Command.validator
-    mapper = Command.mapper
-    reducer = Command.reducer
-    collector = Command.collector
 
     @classmethod
     def __exec__(cls, _):
