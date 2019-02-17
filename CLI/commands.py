@@ -241,7 +241,6 @@ class Pwd(Command, metaclass=Metaclass):
 class Grep(Command, metaclass=Metaclass):
     command = "grep"
     validator = "AT_LEAST_TWO_WITH_PIPED"
-    mapper = Command.mapper
     reducer = "SECOND_ARG_TO_FILE_OR_PIPED"
     collector = "CONCAT_LISTS"
 
@@ -284,3 +283,4 @@ class Grep(Command, metaclass=Metaclass):
                 counter = self.A + 1
             if counter > 0:
                 result.append(line)
+        return result
