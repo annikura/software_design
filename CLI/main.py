@@ -1,5 +1,5 @@
 from commands import CommandExecutorMixedImpl
-from tokenizer import ParserContext, CommandLineParser, InvalidCommandException
+from tokenizer import ParserContext, CommandLineParser
 
 if __name__ == "__main__":
     context = ParserContext()
@@ -13,6 +13,6 @@ if __name__ == "__main__":
                 result = CommandExecutorMixedImpl.execute(command[0], command[1:], piped=result)
             if result:
                 print("\n".join(result))
-        except InvalidCommandException as e:
+        except Exception as e:
             print(e.__cause__)
             continue
