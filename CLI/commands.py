@@ -288,3 +288,4 @@ class Grep(Command, metaclass=Metaclass):
                 counter = self.A + 1
             if counter > 0:
                 result.append(line)
+        return result
