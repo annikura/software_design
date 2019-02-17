@@ -25,7 +25,7 @@ class CommandExecutorFromLine(CommandExecutor):
     def execute(command_str, args, piped):
         try:
             bs = subprocess.check_output(
-                "echo -e {} | {} {}".format("\n".join(piped), command_str, " ".join(args)),
+                "echo \"{}\" | {} {}".format("" if piped is None else "\\n".join(piped), command_str, " ".join(args)),
                 shell=True)
             return [bs.decode("utf-8")]
         except subprocess.CalledProcessError or subprocess.SubprocessError as e:
@@ -50,7 +50,7 @@ class CommandExecutorMixedImpl(CommandExecutor):
         try:
             return MetaclassGeneratedCommandExecutor.execute(command_str, args, piped)
         except CommandNotFoundException:
-            CommandExecutorFromLine.execute(command_str, args, piped)
+            return CommandExecutorFromLine.execute(command_str, args, piped)
 
 
 class CommandExecutionException(Exception):
