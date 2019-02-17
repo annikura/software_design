@@ -283,7 +283,6 @@ class Grep(Command, metaclass=Metaclass):
         regexp = re.compile(exp, flags)
         counter = 0
         for line in arg[1]:
-            print(exp, line)
             counter = max(0, counter - 1)
             if regexp.search(line):
                 counter = self.A + 1
