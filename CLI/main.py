@@ -8,7 +8,7 @@ if __name__ == "__main__":
         line = input()
         try:
             commands = CommandLineParser.parse_string(line, context)
-            result = []
+            result = None
             for command in commands:
                 result = CommandExecutorMixedImpl.execute(command[0], command[1:], piped=result)
             if result:
