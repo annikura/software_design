@@ -22,17 +22,17 @@ class Id(Reducer):
         return [piped] + args
 
 
-class IgnoresPiped(Reducer):
+class IgnoresPipedAndUnites(Reducer):
     @staticmethod
     def reduce(piped, args):
         """
-        Ignores piped argument and returns args.
+        Ignores piped argument and returns args wrapped into a list.
 
         :param piped: piped argument
         :param args: command arguments
         :return: args unchanged
         """
-        return args
+        return [args]
 
 
 class IgnoresPipedIfArgs(Reducer):

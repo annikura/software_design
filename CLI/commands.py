@@ -48,7 +48,7 @@ class CommandExecutorMixedImpl(CommandExecutor):
     @staticmethod
     def execute(command_str, args, piped=None):
         try:
-            MetaclassGeneratedCommandExecutor.execute(command_str, args, piped)
+            return MetaclassGeneratedCommandExecutor.execute(command_str, args, piped)
         except CommandNotFoundException:
             CommandExecutorFromLine.execute(command_str, args, piped)
 
@@ -134,7 +134,7 @@ class MapperEnum(Enum):
 
 class ReducerEnum(Enum):
     ID = reducers.Id
-    IGNORE_PIPED = reducers.IgnoresPiped
+    IGNORE_PIPED_AND_UNITE = reducers.IgnoresPipedAndUnites
     IGNORE_PIPED_IF_ARGS = reducers.IgnoresPipedIfArgs
     CALL_ONCE = reducers.CallOnce
 
@@ -183,7 +183,7 @@ class Wc(Command, metaclass=Metaclass):
 
 class Echo(Command, metaclass=Metaclass):
     command = "echo"
-    reducer = "IGNORE_PIPED"
+    reducer = "IGNORE_PIPED_AND_UNITE"
 
     @classmethod
     def __exec__(cls, arg):

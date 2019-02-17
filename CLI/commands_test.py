@@ -39,13 +39,13 @@ class TestCommands(unittest.TestCase):
             self.create_tmp_file("test_file1", ["just one line"]), piped=["One more"]))
 
     def test_echo_ignores_piped(self):
-        self.assertEqual([], commands.Echo().execute(piped=["something"]))
+        self.assertEqual([''], commands.Echo().execute(piped=["something"]))
 
     def test_echo_word(self):
-        self.assertEqual(["word"], commands.Echo().execute(["word"], piped=["something"]))
+        self.assertEqual(["word"], commands.Echo().execute("word", piped=["something"]))
 
     def test_echo_several_word(self):
-        self.assertEqual(["word another with   spaces"], commands.Echo().execute(["word", "another", "with   spaces"]))
+        self.assertEqual(["word another with   spaces"], commands.Echo().execute("word", "another", "with   spaces"))
 
     def test_cat_from_piped(self):
         self.assertEqual(["something"], commands.Cat().execute(piped=["something"]))
