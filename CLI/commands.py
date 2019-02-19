@@ -130,6 +130,7 @@ class ValidatorEnum(Enum):
     REQUIRE_ANY_INPUT = validators.RequiresAny
     REQUIRE_ARGS_INPUT = validators.RequiresArgs
     AT_LEAST_TWO_WITH_PIPED = validators.AtLeastTwoWithPiped
+    ONE_OR_ZERO_ARGUMENTS = validators.OneOrZeroArguments
 
     def __init__(self, validator):
         self.validator = validator
@@ -284,3 +285,24 @@ class Grep(Command, metaclass=Metaclass):
             if counter > 0:
                 result.append(line)
         return result
+
+
+class Ls(Command, metaclass = Metaclass):
+    command = "ls"
+    validator = "ONE_OR_ZERO_ARGUMENTS"
+    reducer = "IGNORE_PIPED_AND_UNITE"
+
+    def __exec__(self, arg):
+        path = "./" if (len(arg) == 0) else arg[0]
+        path = os.path.join(os.getcwd(), path)
+        return '\n'.join([file + ("/" if os.path.isdir(os.path.join(path, file)) else "") for file in os.listdir(path)])
+
+class Cd(Command, metaclass = Metaclass):
+    command = "cd"
+    validator = "ONE_OR_ZERO_ARGUMENTS"
+    reducer = "IGNORE_PIPED_AND_UNITE"
+
+    def __exec__(self, arg):
+        path = os.path.expanduser("~") if (len(arg) == 0) else os.path.join(os.getcwd(), arg[0])
+        os.chdir(path)
+        return ""
