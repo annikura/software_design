@@ -2,6 +2,7 @@ import shutil
 import tempfile
 import unittest
 from os import path
+import os
 
 import commands
 
@@ -101,3 +102,59 @@ class TestCommands(unittest.TestCase):
 
     def test_grep_validator(self):
         self.assertRaises(commands.InvalidCommandArgumentsException, lambda: commands.Grep().execute("f", "-A", "2"))
+
+    def test_ls(self):
+        if not commands.Ls().execute("resources") in [["a.txt\nb/"], ["b/\na.txt"]]:
+            self.fail()
+
+    def test_ls_with_dot(self):
+        if not commands.Ls().execute("./resources") in [["a.txt\nb/"], ["b/\na.txt"]]:
+            self.fail()
+
+    def test_ls_no_arguments(self):
+        current_path = os.path.abspath(os.getcwd())
+        os.chdir("./resources")
+        if not commands.Ls().execute() in [["a.txt\nb/"], ["b/\na.txt"]]:
+            self.fail()
+        os.chdir(current_path)
+
+    def test_ls_ignores_pipe(self):
+        current_path = os.path.abspath(os.getcwd())
+        os.chdir("./resources")
+        if not commands.Ls().execute(piped=["resources"]) in [["a.txt\nb/"], ["b/\na.txt"]]:
+            self.fail()
+        os.chdir(current_path)
+
+    def test_ls_validator(self):
+        self.assertRaises(commands.InvalidCommandArgumentsException, lambda: commands.Ls().execute("a", "b"))
+
+    def test_cd(self):
+        current_path = os.path.abspath(os.getcwd())
+        expected = path.join(current_path, "resources")
+        commands.Cd().execute("resources")
+        self.assertEqual(expected, os.getcwd())
+        os.chdir(current_path)
+
+    def test_cd_with_dot(self):
+        current_path = os.path.abspath(os.getcwd())
+        expected = path.join(current_path, "resources")
+        commands.Cd().execute("./resources")
+        self.assertEqual(expected, os.getcwd())
+        os.chdir(current_path)
+
+    def test_cd_no_arguments(self):
+        current_path = os.path.abspath(os.getcwd())
+        expected = path.expanduser("~")
+        commands.Cd().execute()
+        self.assertEqual(expected, os.getcwd())
+        os.chdir(current_path)
+
+    def test_cd_ignores_pipe(self):
+        current_path = os.path.abspath(os.getcwd())
+        expected = path.expanduser("~")
+        commands.Cd().execute(piped=["resources"])
+        self.assertEqual(expected, os.getcwd())
+        os.chdir(current_path)
+
+    def test_cd_validator(self):
+        self.assertRaises(commands.InvalidCommandArgumentsException, lambda: commands.Cd().execute("a", "b"))

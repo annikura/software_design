@@ -287,7 +287,7 @@ class Grep(Command, metaclass=Metaclass):
         return result
 
 
-class Ls(Command, metaclass = Metaclass):
+class Ls(Command, metaclass=Metaclass):
     command = "ls"
     validator = "ONE_OR_ZERO_ARGUMENTS"
     reducer = "IGNORE_PIPED_AND_UNITE"
@@ -297,7 +297,8 @@ class Ls(Command, metaclass = Metaclass):
         path = os.path.join(os.getcwd(), path)
         return '\n'.join([file + ("/" if os.path.isdir(os.path.join(path, file)) else "") for file in os.listdir(path)])
 
-class Cd(Command, metaclass = Metaclass):
+
+class Cd(Command, metaclass=Metaclass):
     command = "cd"
     validator = "ONE_OR_ZERO_ARGUMENTS"
     reducer = "IGNORE_PIPED_AND_UNITE"
