@@ -26,10 +26,10 @@ class CommandExecutorFromLine(CommandExecutor):
         try:
             bs = subprocess.check_output(
                 "echo \"{}\" | {} {}".format("" if piped is None else "\\n".join(piped), command_str, " ".join(args)),
-                shell=True)
+                shell=True, stderr=open(os.devnull, 'wb'))
             return [bs.decode("utf-8")]
-        except subprocess.CalledProcessError or subprocess.SubprocessError as e:
-            raise CommandExecutionException(e.__cause__)
+        except subprocess.CalledProcessError or subprocess.SubprocessError:
+            raise CommandExecutionException("Error executing {}".format(command_str))
 
 
 class MetaclassGeneratedCommandExecutor(CommandExecutor):

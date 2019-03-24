@@ -14,5 +14,5 @@ if __name__ == "__main__":
             if result:
                 print("\n".join(result))
         except Exception as e:
-            print(e.__cause__)
+            print(str(e))
             continue
