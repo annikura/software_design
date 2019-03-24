@@ -3,4 +3,5 @@ python:
   - "3.5"
 # command to run tests
 script:
+  - cd CLI
   - python -m unittest discover
