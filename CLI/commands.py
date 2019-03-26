@@ -174,7 +174,7 @@ class Wc(Command, metaclass=Metaclass):
 
     @classmethod
     def __exec__(cls, arg):
-        return "{} {} {}".format(
+        return "{} {} {}\n".format(
             len(arg),
             sum(map(lambda x: len(x.split()), arg)),
             sum(map(len, arg))
@@ -187,7 +187,7 @@ class Echo(Command, metaclass=Metaclass):
 
     @classmethod
     def __exec__(cls, arg):
-        return " ".join(arg)
+        return " ".join(arg) + "\n"
 
 
 class Cat(Command, metaclass=Metaclass):
@@ -198,6 +198,7 @@ class Cat(Command, metaclass=Metaclass):
 
     @classmethod
     def __exec__(cls, arg):
+        arg[-1] += "\n"
         return arg
 
 
@@ -215,4 +216,4 @@ class Pwd(Command, metaclass=Metaclass):
 
     @classmethod
     def __exec__(cls, _):
-        return os.path.dirname(os.path.realpath(__file__))
+        return os.path.dirname(os.path.realpath(__file__)) + "\n"

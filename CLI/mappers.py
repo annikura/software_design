@@ -27,4 +27,4 @@ class NameToFile(Mapper):
         :return: file content
         """
         with open(filename) as file:
-            return list(map(lambda x: x.rstrip(), file.readlines()))
+            return file.readlines()
