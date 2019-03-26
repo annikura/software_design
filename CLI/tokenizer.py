@@ -1,5 +1,5 @@
+import os
 import re
-import subprocess
 from enum import Enum, auto
 
 
@@ -30,15 +30,7 @@ class ParserContext:
         :return: value stored by variable
         """
         value = self.values.get(variable)
-        if value is None:
-            try:
-                bs = subprocess.check_output(
-                    "echo ${}".format(variable),
-                    shell=True)
-                return bs.decode("utf-8").strip()
-            except subprocess.CalledProcessError:
-                raise InvalidContextReferenceException("Unknown variable: {}".format(variable))
-        return value
+        return value if value is not None else os.getenv(variable, "")
 
     def set_variable(self, variable, value):
         self.values[variable] = value
