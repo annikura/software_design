@@ -26,10 +26,10 @@ class CommandExecutorFromLine(CommandExecutor):
         try:
             bs = subprocess.check_output(
                 "{} {}".format(command_str, " ".join(args)),
-                shell=True, stderr=subprocess.STDOUT)
+                shell=True)
             return [bs.decode("utf-8")]
         except subprocess.CalledProcessError or subprocess.SubprocessError:
-            raise CommandExecutionException("Error executing {}".format(command_str))
+            raise CommandExecutionException("Error executing command.")
 
 
 class MetaclassGeneratedCommandExecutor(CommandExecutor):
