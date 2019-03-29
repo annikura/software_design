@@ -98,7 +98,8 @@ class Metaclass(type):
             reduced_input = reducer.reduce(piped, mapped_input)
             return collector.collect(list([cls.__exec__(inp) for inp in reduced_input]))
 
-        class_attributes["execute"] = execute
+        if "execute" not in class_attributes:
+            class_attributes["execute"] = execute
 
         clazz = type(class_name, class_parents, class_attributes)
         MetaclassGeneratedCommandExecutor.commands[class_attributes["command"]] = clazz
