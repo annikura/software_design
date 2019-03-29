@@ -113,3 +113,6 @@ class TestCommands(unittest.TestCase):
 
     def test_grep_A_arg_not_present(self):
         self.assertRaises(commands.InvalidCommandArgumentsException, lambda: commands.Grep().execute("f", "-A"))
+
+    def test_grep_unknown_option(self):
+        self.assertRaises(commands.InvalidCommandArgumentsException, lambda: commands.Grep().execute("f", "-foo"))
