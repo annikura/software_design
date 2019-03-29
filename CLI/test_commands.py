@@ -101,3 +101,15 @@ class TestCommands(unittest.TestCase):
 
     def test_grep_validator(self):
         self.assertRaises(commands.InvalidCommandArgumentsException, lambda: commands.Grep().execute("f", "-A", "2"))
+
+    def test_grep_A_negative_arg(self):
+        self.assertRaises(commands.InvalidCommandArgumentsException, lambda: commands.Grep().execute("f", "-A", "-10"))
+
+    def test_grep_A_zero_arg(self):
+        self.assertRaises(commands.InvalidCommandArgumentsException, lambda: commands.Grep().execute("f", "-A", "-10"))
+
+    def test_grep_A_word_arg(self):
+        self.assertRaises(commands.InvalidCommandArgumentsException, lambda: commands.Grep().execute("f", "-A", "foo"))
+
+    def test_grep_A_arg_not_present(self):
+        self.assertRaises(commands.InvalidCommandArgumentsException, lambda: commands.Grep().execute("f", "-A"))

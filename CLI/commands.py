@@ -85,10 +85,22 @@ class CommandNotFoundException(Exception):
 """
 
 
+class ArgumentParser(argparse.ArgumentParser):
+    def error(self, message):
+        raise InvalidCommandArgumentsException(message)
+
+
+def positive_int(value):
+    ivalue = int(value)
+    if ivalue <= 0:
+        raise argparse.ArgumentTypeError("{} is an invalid positive int value".format(value))
+    return ivalue
+
+
 class Metaclass(type):
     @staticmethod
     def __get_parser(args):
-        parser = argparse.ArgumentParser(description='.')
+        parser = ArgumentParser(description='.')
         if not args:
             return parser
         for arg in args:
@@ -253,7 +265,7 @@ class Grep(Command, metaclass=Metaclass):
         {
             "names": ["-A"],
             "options": {
-                "type": int,
+                "type": positive_int,
                 "default": 0,
             }
         },
