@@ -25,8 +25,8 @@ class CommandExecutorFromLine(CommandExecutor):
     def execute(command_str, args, piped):
         try:
             bs = subprocess.check_output(
-                "echo \"{}\" | {} {}".format("" if piped is None else "\\n".join(piped), command_str, " ".join(args)),
-                shell=True, stderr=open(os.devnull, 'wb'))
+                "{} {}".format(command_str, " ".join(args)),
+                shell=True, stderr=subprocess.STDOUT)
             return [bs.decode("utf-8")]
         except subprocess.CalledProcessError or subprocess.SubprocessError:
             raise CommandExecutionException("Error executing {}".format(command_str))
