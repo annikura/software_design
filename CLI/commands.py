@@ -119,6 +119,9 @@ class Metaclass(type):
             options, parameters = parser.parse_known_args(args)
             for key, value in vars(options).items():
                 setattr(cls, key, value)
+            for value in parameters:
+                if value[0] == '-':
+                    raise InvalidCommandArgumentsException("unrecognised option: {}".format(value))
 
             validation_result, validator_message = validator.validate(*parameters, piped=piped)
             if not validation_result:
