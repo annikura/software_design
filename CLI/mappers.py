@@ -28,3 +28,15 @@ class NameToFile(Mapper):
         """
         with open(filename) as file:
             return file.readlines()
+
+
+class NameToFileAndName(Mapper):
+    @staticmethod
+    def apply(filename):
+        """
+        Given a name of file returns a pair of its name and its content as a list of string
+        :param filename: name of the file to be read
+        :return: (name, file content)
+        """
+        with open(filename) as file:
+            return filename, file.readlines()

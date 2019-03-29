@@ -125,6 +125,7 @@ class ValidatorEnum(Enum):
 class MapperEnum(Enum):
     ID = mappers.Id
     NAME_TO_FILE = mappers.NameToFile
+    NAME_TO_FILE_AND_NAME = mappers.NameToFileAndName
 
     def __init__(self, mapper):
         self.mapper = mapper
@@ -170,15 +171,16 @@ class Command:
 class Wc(Command, metaclass=Metaclass):
     command = "wc"
     validator = "REQUIRE_ANY_INPUT"
-    mapper = "NAME_TO_FILE"
+    mapper = "NAME_TO_FILE_AND_NAME"
     reducer = "IGNORE_PIPED_IF_ARGS"
 
     @classmethod
     def __exec__(cls, arg):
+        is_piped = not isinstance(arg, tuple)
         return "{} {} {}\n".format(
-            len(arg),
-            sum(map(lambda x: len(x.split()), arg)),
-            sum(map(len, arg))
+            len(arg if is_piped else arg[1]),
+            sum(map(lambda x: len(x.split()), arg if is_piped else arg[1])),
+            sum(map(len, arg)) if is_piped else os.path.getsize(arg[0])
         )
 
 
